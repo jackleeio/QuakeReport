@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:text="14.0"
+        android:layout_weight="1"
+        android:id="@+id/magnitude_text_view"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:text="San Francisco"
+        android:layout_weight="1"
+        android:id="@+id/location_text_view"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:text="Feb 2, 2016"
+        android:layout_weight="1"
+        android:id="@+id/date_text_view"/>
+
+</LinearLayout>
