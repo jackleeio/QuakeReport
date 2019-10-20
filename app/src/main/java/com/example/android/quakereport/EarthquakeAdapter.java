@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
+
+    String locationOffset;
+    String primaryLocation;
+
+    private final String LOCATION_SEPARATOR = " of ";
+
     /**
      *
      * @param context of the app
@@ -44,9 +50,24 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         TextView magnitude_text_view = (TextView)listItemView.findViewById(R.id.magnitude_text_view);
         magnitude_text_view.setText(currentEarthquake.getMagnitude());
 
-        TextView location_text_view = (TextView)listItemView.findViewById(R.id.location_text_view);
-        location_text_view.setText(currentEarthquake.getLocation());
 
+
+        String originalLocation = currentEarthquake.getLocation();
+        if (originalLocation.contains(LOCATION_SEPARATOR)){
+            String[] parts = originalLocation.split(LOCATION_SEPARATOR);
+            locationOffset = parts[0] + LOCATION_SEPARATOR;
+            primaryLocation = parts[1];
+        } else {
+            locationOffset = getContext().getString(R.string.near_the);
+            primaryLocation = originalLocation;
+        }
+
+
+        TextView location_offset_text_view = (TextView)listItemView.findViewById(R.id.location_offset);
+        location_offset_text_view.setText(locationOffset);
+
+        TextView primary_location_text_view = (TextView)listItemView.findViewById(R.id.primary_location);
+        primary_location_text_view.setText(primaryLocation);
 
         Date dateObject = new Date(currentEarthquake.getTimeInMilliseconds());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM DD, YYYY");
