@@ -1,44 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
     android:padding="16dp">
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        tools:text="14.0"
-        android:layout_weight="1"
-        android:id="@+id/magnitude_text_view"/>
+        android:id="@+id/magnitude_text_view"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/magnitude_circle"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        tools:text="1.0" />
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/location_offset"
-        tools:text="30km S of"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        tools:text="San Francisco"
-        android:layout_weight="1"
-        android:id="@+id/primary_location"/>
+        <TextView
+            android:id="@+id/location_offset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="30km S of "
+            android:textAllCaps="true"
+            android:textSize="12sp"
+            android:textColor="@color/textColorEarthquakeDetails"
+            android:maxLines="1"
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        tools:text="Feb 2, 2016"
-        android:layout_weight="1"
-        android:id="@+id/date_text_view"/>
+            android:ellipsize="end"/>
+        <!--android:ellipsize="end" 省略号显示在结尾-->
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        tools:text="22:10 AM"
-        android:id="@+id/time_text_view"/>
+        <TextView
+            android:id="@+id/primary_location"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:text="San Francisco"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/textColorEarthquakeLocation"
+            android:textSize="16sp"/>
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_marginLeft="16dp">
+
+        <TextView
+            android:id="@+id/date_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:text="Feb 2, 2016"
+            android:textSize="12sp"
+            android:layout_gravity="end"
+            android:textColor="@color/textColorEarthquakeDetails"/>
+
+        <TextView
+            android:id="@+id/time_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:text="22:10 AM"
+            android:textSize="12sp"
+            android:textColor="@color/textColorEarthquakeDetails"
+            android:layout_gravity="end"/>
+    </LinearLayout>
 </LinearLayout>
