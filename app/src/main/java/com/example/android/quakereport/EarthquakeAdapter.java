@@ -1,9 +1,11 @@
 package com.example.android.quakereport;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.shapes.Shape;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -18,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
 
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
@@ -70,14 +74,15 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         magnitudeCircle.setColor(getMagnitudeColor(magnitude_double));
 
         String originalLocation = currentEarthquake.getLocation();
-        //
+        // The string split() method search the sequence of characters in the given string.
+        // It returns true if sequence of char values are found in this string otherwise returns false.
         if (originalLocation.contains(LOCATION_SEPARATOR)){
-            //
+            //The string split() method breaks a given string around matches of the given regular expression.
             String[] parts = originalLocation.split(LOCATION_SEPARATOR);
             locationOffset = parts[0] + LOCATION_SEPARATOR;
             primaryLocation = parts[1];
         } else {
-            //
+            //Need to know the Context before use the string getString() method.
             locationOffset = getContext().getString(R.string.near_the);
             primaryLocation = originalLocation;
         }
@@ -88,10 +93,14 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         TextView primary_location_text_view = (TextView)listItemView.findViewById(R.id.primary_location);
         primary_location_text_view.setText(primaryLocation);
 
+        //Create a new Date instance with the timeInMillisecond of earthquake
         Date dateObject = new Date(currentEarthquake.getTimeInMilliseconds());
+
+        //Set the format of data string
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM DD, YYYY");
         String date = dateFormat.format(dateObject);
 
+        //Set the format of time string
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss a");
         String time = timeFormat.format(dateObject);
 
@@ -100,6 +109,20 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
         TextView time_text_view =(TextView) listItemView.findViewById(R.id.time_text_view);
         time_text_view.setText(time);
+
+        //Delete these code and use the method of ListView ->setOnItemClickListener() to set the
+        //intent of the every list_item
+        /*
+        final Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
+
+        LinearLayout linearLayout = (LinearLayout)listItemView.findViewById(R.id.linearLayout);
+        linearLayout.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
+                getContext().startActivity(websiteIntent);
+            }
+        });*/
 
         return listItemView;
     }
