@@ -97,7 +97,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         Date dateObject = new Date(currentEarthquake.getTimeInMilliseconds());
 
         //Set the format of data string
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM DD, YYYY");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM月dd日, YYYY");
         String date = dateFormat.format(dateObject);
 
         //Set the format of time string
