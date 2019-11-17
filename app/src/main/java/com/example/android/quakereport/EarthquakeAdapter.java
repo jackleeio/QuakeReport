@@ -55,6 +55,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         //Find the earthquake at the given position in the list of earthquakes
         Earthquake currentEarthquake = getItem(position);
 
+        //make the earthquake magnitude retain a decimal and return a String
         DecimalFormat decimalFormat = new DecimalFormat("0.0");
         String magnitude = decimalFormat.format(currentEarthquake.getMagnitude());
 
@@ -109,20 +110,6 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
         TextView time_text_view =(TextView) listItemView.findViewById(R.id.time_text_view);
         time_text_view.setText(time);
-
-        //Delete these code and use the method of ListView ->setOnItemClickListener() to set the
-        //intent of the every list_item
-        /*
-        final Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
-
-        LinearLayout linearLayout = (LinearLayout)listItemView.findViewById(R.id.linearLayout);
-        linearLayout.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
-                getContext().startActivity(websiteIntent);
-            }
-        });*/
 
         return listItemView;
     }

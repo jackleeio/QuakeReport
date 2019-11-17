@@ -49,9 +49,15 @@ public final class QueryUtils {
         return earthquakes;
     }
 
+    /**
+     *
+     * @param stringUrl is the input of the stringUrl
+     * @return the new URL Object from the given string URL
+     */
     private static URL createUrl(String stringUrl) {
         URL url = null;
         try {
+            //generate the URL of the input stringUrl.
             url = new URL(stringUrl);
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Error with creating URL", e);
@@ -60,9 +66,16 @@ public final class QueryUtils {
         return url;
     }
 
+    /**
+     * Make an HTTP request to the given URL and return a String as the response
+     * @param url is the input URL Object
+     * @return a String as the response
+     * @throws IOException e
+     */
     private static String makeHttpResponse(URL url) throws IOException {
         String jsonResponse = "";
 
+        //if the url is null, then return early.
         if (url == null) {
             return jsonResponse;
         }
@@ -75,7 +88,9 @@ public final class QueryUtils {
             urlConnection.setConnectTimeout(15000);
             urlConnection.setReadTimeout(10000);
             urlConnection.connect();
-
+            //Use urlConnection.getResponseCode() to check the code,
+            //If the request was successful (response code is 200),
+            //then read the input stream and parse the response
             if (urlConnection.getResponseCode() == 200) {
                 inputStream = urlConnection.getInputStream();
                 jsonResponse = readFromStream(inputStream);
@@ -83,6 +98,7 @@ public final class QueryUtils {
                 Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
             }
         } catch (IOException e) {
+            //Handle the exception
             Log.e(LOG_TAG, "problem retrieving the earthquake JSON result.", e);
         } finally {
             if (urlConnection != null) {
@@ -94,6 +110,14 @@ public final class QueryUtils {
         }
         return jsonResponse;
     }
+
+    /**
+     * Convert the{@link InputStream} into a String which contains the
+     * whole JSON response from the server
+     * @param inputStream is the input stream from the HTTPResponse
+     * @return a String of the JSON response
+     * @throws IOException
+     */
     public static String readFromStream(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
         if (inputStream != null) {

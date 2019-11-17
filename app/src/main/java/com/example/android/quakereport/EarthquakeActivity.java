@@ -15,7 +15,10 @@
  */
 package com.example.android.quakereport;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,8 +42,23 @@ public class EarthquakeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
-        EarthquakeAsyncTask earthquakeAsynctask = new EarthquakeAsyncTask();
-        earthquakeAsynctask.execute("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2019-01-01&latitude=30.70&longitude=104.05&maxradiuskm=800");
+        TextView emptyView = (TextView)findViewById(R.id.empty_view);
+        emptyView.setVisibility(View.GONE);
+
+        ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+
+
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()) {
+            EarthquakeAsyncTask earthquakeAsynctask = new EarthquakeAsyncTask();
+            earthquakeAsynctask.execute("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2019-01-01&latitude=30.70&longitude=104.05&maxradiuskm=800");
+        }
+        else {
+            progressBar.setVisibility(View.GONE);
+            emptyView.setText("No Internet Connection");
+            emptyView.setVisibility(View.VISIBLE);
+        }
 
 
     }
@@ -53,24 +73,38 @@ public class EarthquakeActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final ArrayList<Earthquake> earthquakes) {
+
             // Find a reference to the {@link ListView} in the layout
             ListView earthquakeListView = (ListView) findViewById(R.id.list);
+            ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
 
-            EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, earthquakes);
-            // Set the adapter on the {@link ListView}
-            // so the list can be populated in the user interface
-            earthquakeListView.setAdapter(adapter);
+            if (earthquakes != null && !earthquakes.isEmpty()) {
 
-            earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Earthquake currentEarthquake = earthquakes.get(i);
 
-                    Uri uri = Uri.parse(currentEarthquake.getUrl());
-                    Intent websiteIntent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(websiteIntent);
-                }
-            });
+                EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, earthquakes);
+                // Set the adapter on the {@link ListView}
+                // so the list can be populated in the user interface
+                earthquakeListView.setAdapter(adapter);
+
+                earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Earthquake currentEarthquake = earthquakes.get(i);
+
+                        Uri uri = Uri.parse(currentEarthquake.getUrl());
+                        Intent websiteIntent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(websiteIntent);
+                    }
+                });
+
+                progressBar.setVisibility(View.GONE);
+            }
+            else {
+                earthquakeListView.setEmptyView(findViewById(R.id.empty_view));
+                progressBar.setVisibility(View.GONE);
+            }
+
+
         }
     }
 
