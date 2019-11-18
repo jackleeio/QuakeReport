@@ -36,15 +36,18 @@ public final class QueryUtils {
     }
 
     public static ArrayList<Earthquake> fetchEarthquakeData(String requestUrl) {
+        //Create the URL object
         URL url = createUrl(requestUrl);
 
+        //Perform HTTP request to the URL and receive a JSON response back
         String jsonResponse = null;
         try {
             jsonResponse = makeHttpResponse(url);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "");
+            Log.e(LOG_TAG, "Error ");
         }
 
+        //Extract relevant fields from JSON response and create an ArrayList<Earthquake> object
         ArrayList<Earthquake> earthquakes = extractEarthquakes(jsonResponse);
         return earthquakes;
     }
@@ -153,7 +156,6 @@ public final class QueryUtils {
             JSONArray jsonArray = jsonRootObject.getJSONArray("features");
 
             for (int i = 0; i < jsonArray.length(); i++){
-            //for (int i = 0; i < 30; i++){
                 JSONObject jsonEarthquakeObject = jsonArray.getJSONObject(i);
                 JSONObject jsonPropertiesObject = jsonEarthquakeObject.getJSONObject("properties");
                 Double magnitude = jsonPropertiesObject.getDouble("mag");
