@@ -1,64 +1,58 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.example.android.quakereport;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
+    //使用下滑刷新接口
+public class EarthquakeActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-public class EarthquakeActivity extends AppCompatActivity {
 
-
-    private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2019-01-01&latitude=30.70&longitude=104.05&maxradiuskm=800";
-
+    private static String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=";
+    SwipeRefreshLayout swipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.earthquake_activity);
+        setContentView(R.layout.activity_earthquake);
+
         //Not to show the empty view in the first
-        TextView emptyView = (TextView)findViewById(R.id.empty_view);
+        TextView emptyView = (TextView) findViewById(R.id.empty_view);
         emptyView.setVisibility(View.GONE);
 
-        ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        updateUrl();
+
 
         //Check the network
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         //If there is network and the network can be connected
-        if(networkInfo != null && networkInfo.isConnected()) {
-            EarthquakeAsyncTask earthquakeAsynctask = new EarthquakeAsyncTask();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            EarthquakeActivity.EarthquakeAsyncTask earthquakeAsynctask = new EarthquakeActivity.EarthquakeAsyncTask();
             //AsyncTask.execute方法会将参数传到doInBackground中执行
             earthquakeAsynctask.execute(USGS_REQUEST_URL);
-        }
-        else {
+        } else {
             //if there is no network or the network can't be connected
             //set the progressBar divisible and emptyView visible
             progressBar.setVisibility(View.GONE);
@@ -66,6 +60,38 @@ public class EarthquakeActivity extends AppCompatActivity {
             emptyView.setVisibility(View.VISIBLE);
         }
 
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        //设置刷新监听器
+        swipeRefreshLayout.setOnRefreshListener(this);
+        //设置进度圆圈的背景颜色
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+
+    }
+
+    @Override
+    public void onRefresh() {
+        //update USGS_REQUEST_URL
+        updateUrl();
+        EarthquakeActivity.EarthquakeAsyncTask earthquakeAsyncTask = new EarthquakeActivity.EarthquakeAsyncTask();
+        //AsyncTask.execute方法会将参数传到doInBackground中执行
+        earthquakeAsyncTask.execute(USGS_REQUEST_URL);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //将EarthquakeAsyncTask 声明为EarthquakeActivity的内部类，用于在后台线程上执行网络请求
@@ -95,25 +121,29 @@ public class EarthquakeActivity extends AppCompatActivity {
         /**
          * 此方法是在完成后台工作后，在主 UI 线程上
          * 激活的。
-         *
+         * <p>
          * 可以在此方法内修改 UI。我们输入 {@link ArrayList<Earthquake>} 对象
          * （该对象从 doInBackground() 方法返回），并更新屏幕上的视图。
          */
         @Override
         protected void onPostExecute(final ArrayList<Earthquake> earthquakes) {
+            //收到数据后结束下拉刷新动作
+            swipeRefreshLayout.setRefreshing(false);
+
+            EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, earthquakes);
 
             // Find a reference to the {@link ListView} in the layout
             ListView earthquakeListView = (ListView) findViewById(R.id.list);
-            ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
-
+            ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+            TextView emptyView = (TextView)findViewById(R.id.empty_view);
             if (earthquakes != null && !earthquakes.isEmpty()) {
 
-                EarthquakeAdapter adapter = new EarthquakeAdapter(EarthquakeActivity.this, earthquakes);
+
                 // Set the adapter on the {@link ListView}
                 // so the list can be populated in the user interface
                 earthquakeListView.setAdapter(adapter);
 
-                earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Earthquake currentEarthquake = earthquakes.get(i);
@@ -126,10 +156,19 @@ public class EarthquakeActivity extends AppCompatActivity {
                 });
                 //if the earthquake array list is not null then set the progressBar divisible
                 progressBar.setVisibility(View.GONE);
-            }
-            else {
+                emptyView.setVisibility(View.INVISIBLE);
+
+
+            } else {
+                //收到数据后结束下拉刷新动作
+                swipeRefreshLayout.setRefreshing(false);
+
+
+                // Set the adapter on the {@link ListView}
+                // so the list can be populated in the user interface
+                earthquakeListView.setAdapter(adapter);
                 //if the earthquake array list null then set the emptyView visible and progressBar divisible
-                earthquakeListView.setEmptyView(findViewById(R.id.empty_view));
+                emptyView.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
 
             }
@@ -137,4 +176,46 @@ public class EarthquakeActivity extends AppCompatActivity {
         }
     }
 
+    private void updateUrl(){
+
+        USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=";
+
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //获取最小震级和之前天数对应偏好设置的值
+        String minMagnitude = sharedPreferences.getString(getString(R.string.setting_min_magnitude_key), getString(R.string.setting_min_magnitude_default));
+        String before_day = sharedPreferences.getString(getString(R.string.setting_date), getString(R.string.setting_date_default));
+
+        //add the date，获取之前某段时间的方法
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE, - Integer.parseInt(before_day));
+        Date day = calendar.getTime();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String starttime = format.format(day);
+        USGS_REQUEST_URL += starttime;
+
+        //先将USGS_REQUEST_URL 常量的值修改为 基准 URI
+        Uri baseUri = Uri.parse(USGS_REQUEST_URL);
+        //在此baseUri之上进行添加，
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+        //添加最小震级参数
+        uriBuilder.appendQueryParameter("minmag", minMagnitude);
+        //获取位置偏好的参数
+        String location = sharedPreferences.getString(getString(R.string.setting_location),"world");
+
+        //如果是位置偏好是世界范围的则不添加位置偏好到url中
+        if (!location.equals("world")){
+            String[] part = location.split(",");
+            String latitude = part[0];
+            String longitude = part[1];
+            String maxradiuskm = "800";
+            uriBuilder.appendQueryParameter("latitude", latitude);
+            uriBuilder.appendQueryParameter("longitude", longitude);
+            uriBuilder.appendQueryParameter("maxradiuskm", maxradiuskm);
+        }
+
+        USGS_REQUEST_URL = uriBuilder.toString();
+
+    }
 }

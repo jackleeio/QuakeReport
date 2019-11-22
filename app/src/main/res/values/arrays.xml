@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="location">
+        <item>China</item>
+        <item>US</item>
+        <item>Europe</item>
+        <item>Allover the World</item>
+    </string-array>
+
+    <string-array name="location_value">
+        <item>30.67,104.06</item>
+        <item>39.04,-97.95</item>
+        <item>50.40,23.14</item>
+        <item>world</item>
+    </string-array>
+
+    <string-array name="date">
+        <item>1 day before</item>
+        <item>2 day before</item>
+        <item>3 day before</item>
+        <item>4 day before</item>
+        <item>5 day before</item>
+    </string-array>
+
+    <string-array name="date_value">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+</resources>
